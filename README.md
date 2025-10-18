@@ -1,7 +1,5 @@
 Alloy Design Toolkit - Automatic Workflow
-https://img.shields.io/badge/Python-3.7%252B-blue
-https://img.shields.io/badge/Thermo--Calc-Integrated-orange
-https://img.shields.io/badge/GUI-Tkinter-green
+
 
 A comprehensive computational workflow for automated alloy design and optimization, specifically designed for medium-Mn steels and multi-phase alloys.
 
