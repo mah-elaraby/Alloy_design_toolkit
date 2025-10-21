@@ -15,6 +15,13 @@ This toolkit provides an automatic computational workflow for designing steel al
 - **Precipitation Kinetics**: Modeling of precipitation behavior in medium-Mn steels
 - **Annealing Time Optimization**: Automated optimization of heat treatment parameters
 
+## Documentation
+
+Detailed documentation for the toolkit, including explanations of each module, is available in the documentation PDF:
+
+[View documentation PDF
+](https://github.com/mah-elaraby/Alloy_design_toolkit/blob/main/docs/alloy_design_toolkit_documentation.pdf)
+
 ## Project Structure
 
 ```
@@ -211,10 +218,6 @@ The main window of the Alloy Design Toolkit, showing the different tabs for work
 
 The calculations, especially the phase calculations over a large composition space, can be time-consuming. The application utilizes parallel processing to speed up these calculations. The number of parallel workers can be configured in `config/settings.py` to match the number of available CPU cores.
 
-## Security & Privacy
-
-This is a local desktop application. It does not collect or transmit any personal data. All calculations are performed on the local machine.
-
 
 ## Error States
 
@@ -223,6 +226,5 @@ Errors that occur during the workflow are displayed in the log window in the "Wo
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
 
 
