@@ -125,8 +125,8 @@ sequenceDiagram
   GUI ->> WorkflowRunner: Start Workflow
   WorkflowRunner ->> CoreModules: Execute Phase Calculations
   CoreModules -->> WorkflowRunner: Return Phase Data
-  WorkflowRunner ->> CoreModules: Execute Martensite Calculations
-  CoreModules -->> WorkflowRunner: Return Martensite Data
+  WorkflowRunner ->> CoreModules: Execute Ms/Fm/RA Calculations
+  CoreModules -->> WorkflowRunner: Return Ms/Fm/RA Data
   WorkflowRunner ->> CoreModules: Execute SFE Calculations
   CoreModules -->> WorkflowRunner: Return SFE Data
   WorkflowRunner ->> CoreModules: Execute MOO Optimization
