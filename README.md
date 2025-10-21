@@ -260,7 +260,6 @@ Launch the application by running:
 python main.py
 ```
 
-The main window provides a tabbed interface to navigate through the different modules of the workflow.
 
 
 
@@ -268,24 +267,9 @@ The main window provides a tabbed interface to navigate through the different mo
 
 <img width="500" height="570" alt="Screenshot 2025-10-19 at 22 28 32" src="https://github.com/user-attachments/assets/01a36a38-0b45-479b-89a7-1aeadc4e0f69" /> <img width="500" height="570" alt="Screenshot 2025-10-19 at 23 10 40" src="https://github.com/user-attachments/assets/3f98475a-e7fc-4d6d-b2ae-c37b99bb6aa9" />
 
+The main window of the Alloy Design Toolkit, showing the different tabs for workflow configuration and execution.
 
-*(Placeholder for Screenshot 1: Main window of the application)*
-**Caption**: The main window of the Alloy Design Toolkit, showing the different tabs for workflow configuration and execution.
 
-*(Placeholder for Screenshot 2: MOO Pareto front plot)*
-**Caption**: A plot of the Pareto front from the multi-objective optimization, showing the trade-off between different alloy properties.
-
-## How It Works
-
-The toolkit automates an 8-step computational workflow:
-
-1.  **Define Composition Space**: The user specifies element concentration ranges and temperature steps.
-2.  **Predict Retained Austenite**: Calculates the Martensite start temperature (Ms) and estimates the retained austenite fraction.
-3.  **Calculate Stacking Fault Energy (SFE)**: Determines the SFE of the austenite phase.
-4.  **Multi-Objective Optimization**: Uses the NSGA-II algorithm to find optimal alloy compositions based on user-defined objectives and constraints.
-5.  **Precipitation Kinetics Simulation**: Runs TC-PRISMA to simulate precipitation during annealing for the top-ranked alloys.
-6.  **Determine Optimal Annealing Time**: Analyzes precipitation kinetics to find the optimal annealing time.
-7.  **Export Results**: Saves all data to a structured Excel file.
 
 ## FAQ
 
@@ -317,17 +301,6 @@ The calculations, especially the phase calculations over a large composition spa
 
 This is a local desktop application. It does not collect or transmit any personal data. All calculations are performed on the local machine.
 
-## Accessibility (WCAG)
-
-The GUI is built with Tkinter, which has limited accessibility features. Keyboard navigation is basic. This is a research tool and has not been optimized for WCAG compliance.
-
-## Keyboard Shortcuts
-
-There are no specific keyboard shortcuts implemented in the application beyond the standard Tkinter shortcuts.
-
-## Theming
-
-The application uses the default Tkinter theme and does not currently support custom theming or dark mode.
 
 ## Error States
 
