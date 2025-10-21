@@ -266,7 +266,7 @@ The main window provides a tabbed interface to navigate through the different mo
 
 ### Annotated Screenshots
 
-<img width="530" height="570" alt="Screenshot 2025-10-19 at 22 28 32" src="https://github.com/user-attachments/assets/01a36a38-0b45-479b-89a7-1aeadc4e0f69" /> <img width="550" height="530" alt="Screenshot 2025-10-19 at 23 10 40" src="https://github.com/user-attachments/assets/3f98475a-e7fc-4d6d-b2ae-c37b99bb6aa9" />
+<img width="530" height="570" alt="Screenshot 2025-10-19 at 22 28 32" src="https://github.com/user-attachments/assets/01a36a38-0b45-479b-89a7-1aeadc4e0f69" /> <img width="530" height="570" alt="Screenshot 2025-10-19 at 23 10 40" src="https://github.com/user-attachments/assets/3f98475a-e7fc-4d6d-b2ae-c37b99bb6aa9" />
 
 
 *(Placeholder for Screenshot 1: Main window of the application)*
