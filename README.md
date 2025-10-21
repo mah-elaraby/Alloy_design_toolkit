@@ -101,6 +101,29 @@ This toolkit provides an automatic computational workflow for designing steel al
 - **Precipitation Kinetics**: Modeling of precipitation behavior in medium-Mn steels
 - **Annealing Time Optimization**: Automated optimization of heat treatment parameters
 
+## Project Structure
+
+```
+Alloy_design_toolkit/
+├── main.py                           # Main application entry point
+├── run_app.py                        # Alternative application launcher
+├── config/                           # Configuration files and settings
+├── core/                             # Core computational modules
+│   ├── workflow_runner.py            # Workflow orchestration
+│   ├── phase_calculator.py           # Step 1: Composition space generation
+│   ├── martensite_calculator.py      # Step 2: Retained austenite prediction
+│   ├── sfe_calculator.py             # Step 3: Stacking fault energy
+│   ├── moo_optimizer.py              # Step 4: Multi-objective optimization
+│   ├── precipitation_calculator.py   # Step 5: Precipitation kinetics
+│   └── annealing_optimizer.py        # Step 6: Annealing time optimization
+├── gui/                              # Graphical user interface components
+│   ├── main_window.py                # Main application window
+│   ├── tabs/                         # Individual workflow step tabs
+│   └── dialogs/                      # Configuration and input dialogs
+├── standalone_scripts/               # Independent utility scripts
+└── utils/                            # Utility functions and helpers
+```
+
 ## Computational Workflow
 
 The Alloy Design Toolkit follows a systematic 8-step computational workflow:
@@ -125,7 +148,7 @@ The Alloy Design Toolkit follows a systematic 8-step computational workflow:
 ### 3. Calculate Stacking Fault Energy
 - **Data Import**: Imports austenite composition vs temperature from Step 1
 - **SFE Calculation**:
-  - Calculate stacking fault energy (SFE) for austenite phase at specified temperatures
+  - Calculate stacking fault energy (SFE) for the austenite phase at specified temperatures
 
 ### 4. Multi-Objective Optimization
 - **Data Integration**: Imports results from Steps 1-3
@@ -162,27 +185,34 @@ The Alloy Design Toolkit follows a systematic 8-step computational workflow:
     - Optimal processing parameters
   - Ready for further analysis and visualization
 
-## Project Structure
+### GUI Flow
 
-```
-Alloy_design_toolkit/
-├── main.py                           # Main application entry point
-├── run_app.py                        # Alternative application launcher
-├── config/                           # Configuration files and settings
-├── core/                             # Core computational modules
-│   ├── workflow_runner.py            # Workflow orchestration
-│   ├── phase_calculator.py           # Step 1: Composition space generation
-│   ├── martensite_calculator.py      # Step 2: Retained austenite prediction
-│   ├── sfe_calculator.py             # Step 3: Stacking fault energy
-│   ├── moo_optimizer.py              # Step 4: Multi-objective optimization
-│   ├── precipitation_calculator.py   # Step 5: Precipitation kinetics
-│   └── annealing_optimizer.py        # Step 6: Annealing time optimization
-├── gui/                              # Graphical user interface components
-│   ├── main_window.py                # Main application window
-│   ├── tabs/                         # Individual workflow step tabs
-│   └── dialogs/                      # Configuration and input dialogs
-├── standalone_scripts/               # Independent utility scripts
-└── utils/                            # Utility functions and helpers
+```mermaid
+sequenceDiagram
+    participant User
+    participant GUI
+    participant WorkflowRunner
+    participant CoreModules
+
+    User->>GUI: Launch Application
+    GUI->>User: Display Main Window
+    User->>GUI: Configure Parameters (Composition, Temp, etc.)
+    GUI->>WorkflowRunner: Start Workflow
+    WorkflowRunner->>CoreModules: Execute Phase Calculations
+    CoreModules-->>WorkflowRunner: Return Phase Data
+    WorkflowRunner->>CoreModules: Execute Martensite Calculations
+    CoreModules-->>WorkflowRunner: Return Martensite Data
+    WorkflowRunner->>CoreModules: Execute SFE Calculations
+    CoreModules-->>WorkflowRunner: Return SFE Data
+    WorkflowRunner->>CoreModules: Execute MOO Optimization
+    CoreModules-->>WorkflowRunner: Return Optimal Solutions
+    WorkflowRunner->>CoreModules: Execute Precipitation Simulation
+    CoreModules-->>WorkflowRunner: Return Precipitation Data
+    WorkflowRunner->>GUI: Update Log and Progress
+    GUI->>User: Display Results
+    User->>GUI: Export Results
+    GUI->>WorkflowRunner: Generate Excel Report
+    WorkflowRunner-->>User: Download Excel File
 ```
 
 ## Supported Platforms
@@ -232,39 +262,11 @@ python main.py
 
 The main window provides a tabbed interface to navigate through the different modules of the workflow.
 
-### GUI Flow
 
-```mermaid
-sequenceDiagram
-    participant User
-    participant GUI
-    participant WorkflowRunner
-    participant CoreModules
-
-    User->>GUI: Launch Application
-    GUI->>User: Display Main Window
-    User->>GUI: Configure Parameters (Composition, Temp, etc.)
-    GUI->>WorkflowRunner: Start Workflow
-    WorkflowRunner->>CoreModules: Execute Phase Calculations
-    CoreModules-->>WorkflowRunner: Return Phase Data
-    WorkflowRunner->>CoreModules: Execute Martensite Calculations
-    CoreModules-->>WorkflowRunner: Return Martensite Data
-    WorkflowRunner->>CoreModules: Execute SFE Calculations
-    CoreModules-->>WorkflowRunner: Return SFE Data
-    WorkflowRunner->>CoreModules: Execute MOO Optimization
-    CoreModules-->>WorkflowRunner: Return Optimal Solutions
-    WorkflowRunner->>CoreModules: Execute Precipitation Simulation
-    CoreModules-->>WorkflowRunner: Return Precipitation Data
-    WorkflowRunner->>GUI: Update Log and Progress
-    GUI->>User: Display Results
-    User->>GUI: Export Results
-    GUI->>WorkflowRunner: Generate Excel Report
-    WorkflowRunner-->>User: Download Excel File
-```
 
 ### Annotated Screenshots
 
-<img width="744" height="770" alt="Screenshot 2025-10-19 at 22 28 32" src="https://github.com/user-attachments/assets/01a36a38-0b45-479b-89a7-1aeadc4e0f69" />
+<img width="500" height="520" alt="Screenshot 2025-10-19 at 22 28 32" src="https://github.com/user-attachments/assets/01a36a38-0b45-479b-89a7-1aeadc4e0f69" />
 
 *(Placeholder for Screenshot 1: Main window of the application)*
 **Caption**: The main window of the Alloy Design Toolkit, showing the different tabs for workflow configuration and execution.
