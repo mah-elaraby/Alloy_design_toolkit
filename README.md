@@ -13,101 +13,9 @@ This toolkit provides an automatic computational workflow for designing advanced
 - **Graphical User Interface**: User-friendly Tkinter-based GUI for easy interaction
 - **Thermo-Calc Integration**: Seamless integration with Thermo-Calc for thermodynamic calculations
 
-## Computational Workflow
 
-The Alloy Design Toolkit follows a systematic 8-step computational workflow:
 
-### 1. Define Composition Space
-- **User Input Configuration**:
-  - Specify elements to include in calculations
-  - Define concentration ranges and step sizes for each element
-  - Set temperature range and step size for calculations
-  - Select phases and their fractions/compositions for analysis
-  - Choose steel and Fe-alloys database (e.g., TCFE13)
-  - Configure parallel processing workers based on CPU capacity
-- **System Processing**:
-  - Generate all composition combinations within specified ranges
 
-### 2. Predict Retained Austenite
-- **Data Import**: Imports austenite fraction and composition vs temperature from Step 1
-- **Calculations**:
-  - Calculate martensite start temperature (Ms) for each composition
-  - Estimate retained austenite fraction after quenching
-
-### 3. Calculate Stacking Fault Energy
-- **Data Import**: Imports austenite composition vs temperature from Step 1
-- **SFE Calculation**:
-  - Calculate stacking fault energy (SFE) for austenite phase at specified temperatures
-
-### 4. Multi-Objective Optimization
-- **Data Integration**: Imports results from Steps 1-3
-- **Optimization Parameters**:
-  - **Variables**: Alloying element content and intercritical annealing temperature
-  - **Constraints**: Ms temperature, RA fraction, SFE ranges, cementite fraction, martensite fraction, processing window width (ΔT)
-  - **Objectives**: Maximize strength, ductility, and processing window width (represented by Ms, RA, SFE, ΔT)
-- **Algorithm**: NSGA-II (Non-dominated Sorting Genetic Algorithm II)
-  - Identify Pareto-optimal solutions
-  - Rank solutions by dominance and crowding distance
-
-### 5. Precipitation Kinetics Simulation
-- **TC-PRISMA Integration**: Run simulations for top-ranked alloys from Step 4
-- **Kinetic Analysis**:
-  - Simulate precipitation during intercritical annealing
-  - Track precipitate evolution parameters:
-    - Volume fraction, mean radius, nucleation rate, precipitate and matrix composition vs time
-
-### 6. Determine Optimal Annealing Time
-- **Data Analysis**: Process precipitation kinetics results from Step 5
-- **Optimization Criteria**:
-  - Balance precipitate strengthening with austenite stability
-  - Identify optimal annealing time based on defined objectives
-
-### 7. Export Results
-- **Comprehensive Data Export**:
-  - All results saved to a structured Excel file
-  - Multiple worksheets for each calculation module:
-    - Composition matrix and phase fractions
-    - Retained austenite predictions
-    - Stacking fault energy calculations
-    - Optimization results and Pareto fronts
-    - Precipitation kinetics data
-    - Optimal processing parameters
-  - Ready for further analysis and visualization
-
-## Project Structure
-
-```
-Alloy_design_toolkit/
-├── main.py                 # Main application entry point
-├── run_app.py             # Alternative application launcher
-├── config/                # Configuration files and settings
-├── core/                  # Core computational modules
-│   ├── workflow_runner.py            # Workflow orchestration
-│   ├── phase_calculator.py           # Step 1: Composition space generation
-│   ├── martensite_calculator.py      # Step 2: Retained austenite prediction
-│   ├── sfe_calculator.py             # Step 3: Stacking fault energy
-│   ├── moo_optimizer.py              # Step 4: Multi-objective optimization
-│   ├── precipitation_calculator.py   # Step 5: Precipitation kinetics
-│   └── annealing_optimizer.py        # Step 6: Annealing time optimization
-├── gui/                   # Graphical user interface components
-│   ├── main_window.py     # Main application window
-│   ├── tabs/              # Individual workflow step tabs
-│   └── dialogs/           # Configuration and input dialogs
-├── standalone_scripts/    # Independent utility scripts
-└── utils/                # Utility functions and helpers
-```
-
-## Requirements
-
-- Python 3.7 or higher
-- Tkinter (usually included with Python)
-- **Thermo-Calc** (for thermodynamic calculations)
-- **TC-Python** (Thermo-Calc Python API)
-- **TC-PRISMA** (for precipitation kinetics)
-- Required Python packages:
-  ```bash
-  pip install numpy scipy pandas openpyxl matplotlib
-  ```
 
 ## Installation
 
@@ -180,17 +88,102 @@ For questions, suggestions, or support, please contact the project maintainer or
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-An integrated computational workflow for designing advanced high-strength steel alloys, specifically focusing on medium-manganese steels. It combines thermodynamic calculations, kinetic modeling, and multi-objective optimization to predict optimal alloy compositions and processing parameters.
+This toolkit provides an automatic computational workflow for designing steel alloys, a case study of medium-manganese steels. It integrates thermodynamic calculations (using TC-Python), kinetic modelling (TC-PRISMA), and multi-objective optimization (NSGA-II) to predict optimal alloy compositions and processing parameters (intrcritical annealing temperature and time).
 
 ## Key Features
 
-- **Thermodynamic Calculations**: Leverages TC-Python for accurate phase equilibria predictions.
-- **Kinetic Modeling**: Simulates precipitation kinetics using TC-PRISMA.
-- **Multi-Objective Optimization**: Employs NSGA-II to find Pareto-optimal alloy compositions.
-- **Property Prediction**: Calculates critical properties like Martensite Start (Ms) temperature, retained austenite fraction, and Stacking Fault Energy (SFE).
-- **GUI Interface**: A user-friendly graphical interface built with Tkinter for easy workflow execution and parameter configuration.
-- **Data Export**: Comprehensive export of results to structured Excel files for further analysis.
+- **Graphical User Interface**: User-friendly Tkinter-based GUI for easy interaction
+- **Thermo-Calc Integration**: Seamless integration with Thermo-Calc for thermodynamic calculations
+- **Phase Calculations**: Advanced thermodynamic calculations for alloy phase prediction
+- **Martensite/Austenite Predictions**: Automated prediction of phase transformations
+- **Stacking Fault Energy Analysis**: Calculation and optimization of stacking fault energies
+- **Multi-objective Optimization**: Sophisticated optimization algorithms for alloy composition
+- **Precipitation Kinetics**: Modeling of precipitation behavior in medium-Mn steels
+- **Annealing Time Optimization**: Automated optimization of heat treatment parameters
 
+## Computational Workflow
+
+The Alloy Design Toolkit follows a systematic 8-step computational workflow:
+
+### 1. Define Composition Space
+- **User Input Configuration**:
+  - Specify elements to include in calculations
+  - Define concentration ranges and step sizes for each element
+  - Set temperature range and step size for calculations
+  - Select phases and their fractions/compositions for analysis
+  - Choose steel and Fe-alloys database (e.g., TCFE13)
+  - Configure parallel processing workers based on CPU capacity
+- **System Processing**:
+  - Generate all composition combinations within specified ranges
+
+### 2. Predict Retained Austenite
+- **Data Import**: Imports austenite fraction and composition vs temperature from Step 1
+- **Calculations**:
+  - Calculate martensite start temperature (Ms) for each composition
+  - Estimate retained austenite fraction after quenching
+
+### 3. Calculate Stacking Fault Energy
+- **Data Import**: Imports austenite composition vs temperature from Step 1
+- **SFE Calculation**:
+  - Calculate stacking fault energy (SFE) for austenite phase at specified temperatures
+
+### 4. Multi-Objective Optimization
+- **Data Integration**: Imports results from Steps 1-3
+- **Optimization Parameters**:
+  - **Variables**: Alloying element content and intercritical annealing temperature
+  - **Constraints**: Ms temperature, RA fraction, SFE ranges, cementite fraction, martensite fraction, processing window width (ΔT)
+  - **Objectives**: Maximize strength, ductility, and processing window width (represented by Ms, RA, SFE, ΔT)
+- **Algorithm**: NSGA-II (Non-dominated Sorting Genetic Algorithm II)
+  - Identify Pareto-optimal solutions
+  - Rank solutions by dominance and crowding distance
+
+### 5. Precipitation Kinetics Simulation
+- **TC-PRISMA Integration**: Run simulations for top-ranked alloys from Step 4
+- **Kinetic Analysis**:
+  - Simulate precipitation during intercritical annealing
+  - Track precipitate evolution parameters:
+    - Volume fraction, mean radius, nucleation rate, precipitate, and matrix composition vs time
+
+### 6. Determine Optimal Annealing Time
+- **Data Analysis**: Process precipitation kinetics results from Step 5
+- **Optimization Criteria**:
+  - Balance precipitate strengthening with austenite stability
+  - Identify optimal annealing time based on defined objectives
+
+### 7. Export Results
+- **Comprehensive Data Export**:
+  - All results saved to a structured Excel file
+  - Multiple worksheets for each calculation module:
+    - Composition matrix and phase fractions
+    - Retained austenite predictions
+    - Stacking fault energy calculations
+    - Optimization results and Pareto fronts
+    - Precipitation kinetics data
+    - Optimal processing parameters
+  - Ready for further analysis and visualization
+
+## Project Structure
+
+```
+Alloy_design_toolkit/
+├── main.py                           # Main application entry point
+├── run_app.py                        # Alternative application launcher
+├── config/                           # Configuration files and settings
+├── core/                             # Core computational modules
+│   ├── workflow_runner.py            # Workflow orchestration
+│   ├── phase_calculator.py           # Step 1: Composition space generation
+│   ├── martensite_calculator.py      # Step 2: Retained austenite prediction
+│   ├── sfe_calculator.py             # Step 3: Stacking fault energy
+│   ├── moo_optimizer.py              # Step 4: Multi-objective optimization
+│   ├── precipitation_calculator.py   # Step 5: Precipitation kinetics
+│   └── annealing_optimizer.py        # Step 6: Annealing time optimization
+├── gui/                              # Graphical user interface components
+│   ├── main_window.py                # Main application window
+│   ├── tabs/                         # Individual workflow step tabs
+│   └── dialogs/                      # Configuration and input dialogs
+├── standalone_scripts/               # Independent utility scripts
+└── utils/                            # Utility functions and helpers
+```
 
 ## Supported Platforms
 
@@ -199,34 +192,20 @@ The application is written in Python and is cross-platform. It can run on:
 - macOS
 - Linux
 
-**Note**: A licensed installation of Thermo-Calc with the TC-Python and TC-PRISMA modules is required on the host machine.
+## Requirements
 
-## Quickstart
+- Python 3.7 or higher
+- Tkinter (usually included with Python)
+- **Thermo-Calc** (for thermodynamic calculations)
+- **TC-Python** (Thermo-Calc Python API)
+- **TC-PRISMA** (for precipitation kinetics)
+- Required Python packages:
+  ```bash
+  pip install numpy scipy pandas openpyxl matplotlib
+  ```
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/mah-elaraby/Alloy_design_toolkit.git
-    cd Alloy_design_toolkit
-    ```
-
-2.  **Install Python dependencies:**
-    ```bash
-    pip install numpy scipy pandas openpyxl matplotlib
-    ```
-
-3.  **Launch the application:**
-    ```bash
-    python main.py
-    ```
 
 ## Installation
-
-### Prerequisites
-
-- Python 3.7+
-- A valid license for **Thermo-Calc**, including the **TC-Python** and **TC-PRISMA** modules.
-
-### Detailed Steps
 
 1.  **Install Thermo-Calc**: Follow the official Thermo-Calc installation instructions for your operating system. Ensure that the TC-Python API is correctly installed and configured.
 
@@ -284,6 +263,8 @@ sequenceDiagram
 ```
 
 ### Annotated Screenshots
+
+<img width="744" height="770" alt="Screenshot 2025-10-19 at 22 28 32" src="https://github.com/user-attachments/assets/01a36a38-0b45-479b-89a7-1aeadc4e0f69" />
 
 *(Placeholder for Screenshot 1: Main window of the application)*
 **Caption**: The main window of the Alloy Design Toolkit, showing the different tabs for workflow configuration and execution.
