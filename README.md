@@ -37,6 +37,7 @@ Alloy_design_toolkit/
 │   ├── moo_optimizer.py              # Step 4: Multi-objective optimization
 │   ├── precipitation_calculator.py   # Step 5: Precipitation kinetics
 │   └── annealing_optimizer.py        # Step 6: Annealing time optimization
+├── docs/                             # Detailed documentation of the code
 ├── gui/                              # Graphical user interface components
 │   ├── main_window.py                # Main application window
 │   ├── tabs/                         # Individual workflow step tabs
