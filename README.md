@@ -37,6 +37,7 @@ Alloy_design_toolkit/
 │   ├── moo_optimizer.py              # Step 4: Multi-objective optimization
 │   ├── precipitation_calculator.py   # Step 5: Precipitation kinetics
 │   └── annealing_optimizer.py        # Step 6: Annealing time optimization
+├── docs/                             # Detailed documentation of the code
 ├── gui/                              # Graphical user interface components
 │   ├── main_window.py                # Main application window
 │   ├── tabs/                         # Individual workflow step tabs
@@ -109,31 +110,38 @@ The Alloy Design Toolkit follows a systematic 8-step computational workflow:
 ### GUI Flow
 
 ```mermaid
+---
+config:
+  look: neo
+---
 sequenceDiagram
-    participant User
-    participant GUI
-    participant WorkflowRunner
-    participant CoreModules
+  participant User as User
+  participant GUI as GUI
+  participant WorkflowRunner as WorkflowRunner
+  participant CoreModules as CoreModules
+  autonumber
+  User ->> GUI: Launch Application
+  GUI ->> User: Display Main Window
+  User ->> GUI: Configure Parameters (Composition, Temp, etc.)
+  GUI ->> WorkflowRunner: Start Workflow
+  WorkflowRunner ->> CoreModules: Execute Phase Calculations
+  CoreModules -->> WorkflowRunner: Return Phase Data
+  WorkflowRunner ->> CoreModules: Execute Ms/Fm/RA Calculations
+  CoreModules -->> WorkflowRunner: Return Ms/Fm/RA Data
+  WorkflowRunner ->> CoreModules: Execute SFE Calculations
+  CoreModules -->> WorkflowRunner: Return SFE Data
+  WorkflowRunner ->> CoreModules: Execute MOO Optimization
+  CoreModules -->> WorkflowRunner: Return Optimal Solutions
+  WorkflowRunner ->> CoreModules: Execute Precipitation Simulation
+  CoreModules -->> WorkflowRunner: Return Precipitation Data
+  WorkflowRunner ->> CoreModules: Execute GM ranking of ppt data
+  CoreModules -->> WorkflowRunner: Return GM ranking of ppt data
+  WorkflowRunner ->> GUI: Update Log and Progress
+  GUI ->> User: Display Results
+  User ->> GUI: Export Results
+  GUI ->> WorkflowRunner: Generate Excel Report
+  WorkflowRunner -->> User: Export Excel File
 
-    User->>GUI: Launch Application
-    GUI->>User: Display Main Window
-    User->>GUI: Configure Parameters (Composition, Temp, etc.)
-    GUI->>WorkflowRunner: Start Workflow
-    WorkflowRunner->>CoreModules: Execute Phase Calculations
-    CoreModules-->>WorkflowRunner: Return Phase Data
-    WorkflowRunner->>CoreModules: Execute Martensite Calculations
-    CoreModules-->>WorkflowRunner: Return Martensite Data
-    WorkflowRunner->>CoreModules: Execute SFE Calculations
-    CoreModules-->>WorkflowRunner: Return SFE Data
-    WorkflowRunner->>CoreModules: Execute MOO Optimization
-    CoreModules-->>WorkflowRunner: Return Optimal Solutions
-    WorkflowRunner->>CoreModules: Execute Precipitation Simulation
-    CoreModules-->>WorkflowRunner: Return Precipitation Data
-    WorkflowRunner->>GUI: Update Log and Progress
-    GUI->>User: Display Results
-    User->>GUI: Export Results
-    GUI->>WorkflowRunner: Generate Excel Report
-    WorkflowRunner-->>User: Download Excel File
 ```
 
 ## Supported Platforms

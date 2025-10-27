@@ -1,0 +1,19 @@
+# Alloy Design Toolkit - Python Dependencies
+
+# Core scientific computing
+numpy>=1.19.0
+scipy>=1.7.0
+pandas>=1.3.0
+
+# Data visualization
+matplotlib>=3.5.0
+
+# Excel file handling
+openpyxl>=3.0.9
+
+# Thermo-Calc integration (proprietary - requires separate installation)
+# tc-python  # Available through Thermo-Calc installation only
+# tc-prisma  # Available through Thermo-Calc installation only
+
+# GUI framework (usually included with Python)
+# tkinter  # Standard library - no separate installation needed
