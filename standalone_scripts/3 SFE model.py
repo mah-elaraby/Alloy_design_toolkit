@@ -65,7 +65,7 @@ class DefaultParameters:
     σ = 10
 
     # Grain size in μm
-    GRAIN_SIZE = 2
+    GRAIN_SIZE = 300
 
     # Lattice parameter in meters
     LATTICE_PARAM = 3.6e-10
@@ -188,9 +188,9 @@ class ThermodynamicParameters:
         self.ω = {
             'FeC': 42500,
             'FeMn': 2873 - 717 * (Fe_f - Mn_f),
-            'FeAl': 3323,
+            'FeAl': 3328,
             'FeSi': 2850 + 3520 * (Fe_f - Si_f),
-            'FeNi': 0,
+            'FeNi': 2095,
             'FeCr': 2095,
             'CrNi': 4190,
             'MnC': 26910,
