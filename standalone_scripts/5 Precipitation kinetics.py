@@ -779,9 +779,9 @@ Output will be saved to:
         ).pack(side=tk.RIGHT, padx=5)
 
         # Store original values for cancel
-        self._store_original_values()
+        self.store_original_values()
 
-    def _store_original_values(self):
+    def store_original_values(self):
         """Store original values of advanced options for cancel functionality."""
         self.original_growth_model = self.growth_model.get()
         self.original_nucleation_site = self.nucleation_site.get()
@@ -971,7 +971,7 @@ Output will be saved to:
                         break
 
                     # Extract compositions and process
-                    result = self._process_composition(
+                    result = self.process_composition(
                         system, comp_row, comp_index, total_compositions,
                         matrix_phase, precipitate_phase, sim_time
                     )
@@ -985,7 +985,7 @@ Output will be saved to:
 
             # Save results to Excel
             if all_results and not self.stop_requested:
-                self._save_results(all_results, output_file)
+                self.save_results(all_results, output_file)
 
             # Log completion
             if self.stop_requested:
@@ -1002,7 +1002,7 @@ Output will be saved to:
             # Reset UI controls
             self.root.after(0, self.reset_buttons)
 
-    def _process_composition(self, system, comp_row, comp_index, total_compositions,
+    def process_composition(self, system, comp_row, comp_index, total_compositions,
                             matrix_phase, precipitate_phase, sim_time):
         """Process a single composition and return results."""
         try:
@@ -1028,13 +1028,13 @@ Output will be saved to:
             self.write_log(comp_summary)
 
             # Build and run calculation
-            precip_calc = self._build_calculation(
+            precip_calc = self.build_calculation(
                 system, composition, temperature_kelvin, sim_time,
                 matrix_phase, precipitate_phase
             )
 
             # Extract results
-            results = self._extract_results(
+            results = self.extract_results(
                 precip_calc, precipitate_phase, composition, temp_celsius
             )
 
@@ -1045,7 +1045,7 @@ Output will be saved to:
             self.write_log(f"  Error: {str(error)}")
             return None
 
-    def _build_calculation(self, system, composition, temperature_kelvin, sim_time,
+    def build_calculation(self, system, composition, temperature_kelvin, sim_time,
                           matrix_phase, precipitate_phase):
         """Build the precipitation calculation with all parameters."""
         # Create precipitate phase with growth model
@@ -1109,7 +1109,7 @@ Output will be saved to:
 
         return precip_calc
 
-    def _extract_results(self, precip_calc, precipitate_phase, composition, temp_celsius):
+    def extract_results(self, precip_calc, precipitate_phase, composition, temp_celsius):
         """Extract all requested results from the calculation."""
         # Get time points (always needed)
         times, vol_fracs = precip_calc.get_volume_fraction_of(precipitate_phase)
@@ -1195,7 +1195,7 @@ Output will be saved to:
 
         return results
 
-    def _save_results(self, all_results, output_file):
+    def save_results(self, all_results, output_file):
         """Save all results to Excel file."""
         self.write_log("\nSaving results to Excel...")
         results_df = pd.DataFrame(all_results)
