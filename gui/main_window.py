@@ -93,9 +93,9 @@ class AlloyDesignWorkflow:
 
     def update_log(self, message):
         """Update the log display from worker thread."""
-        self.root.after(0, lambda: self._update_log_ui(message))
+        self.root.after(0, lambda: self.update_log_ui(message))
 
-    def _update_log_ui(self, message):
+    def update_log_ui(self, message):
         """Update log in UI thread."""
         self.workflow_tab.log_text.insert(tk.END, message + "\n")
         self.workflow_tab.log_text.see(tk.END)
