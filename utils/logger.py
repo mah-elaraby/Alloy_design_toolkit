@@ -39,9 +39,9 @@ class ApplicationLogger:
 
         # Log to UI widget if available
         if self.log_widget:
-            self._log_to_widget(message, level)
+            self.log_to_widget(message, level)
 
-    def _log_to_widget(self, message, level):
+    def log_to_widget(self, message, level):
         """Log message to UI text widget."""
         try:
             # Color coding based on level
