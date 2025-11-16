@@ -106,9 +106,9 @@ class Composition:
         self.wt_pct['Fe'] = 100.0 - total_alloying
 
         # Calculate mole fractions
-        self._calculate_mole_fractions()
+        self.calculate_mole_fractions()
 
-    def _calculate_mole_fractions(self):
+    def calculate_mole_fractions(self):
         """Calculate mole fractions from weight percentages."""
         # Convert weight percentages to moles
         moles = {}
@@ -159,11 +159,11 @@ class ThermodynamicParameters:
         self.T = temperature
 
         # Calculate all thermodynamic parameters
-        self._calculate_gibbs_energies()
-        self._calculate_interaction_parameters()
-        self._calculate_nitrogen_interaction_energies()
+        self.calculate_gibbs_energies()
+        self.calculate_interaction_parameters()
+        self.calculate_nitrogen_interaction_energies()
 
-    def _calculate_gibbs_energies(self):
+    def calculate_gibbs_energies(self):
         """Calculate Gibbs free energies of pure elements in austenite."""
         self.ΔG = {
             'Fe': -2243.38 + 4.309 * self.T,
@@ -177,7 +177,7 @@ class ThermodynamicParameters:
             'Cu': 600 + 0.2 * self.T
         }
 
-    def _calculate_interaction_parameters(self):
+    def calculate_interaction_parameters(self):
         """Calculate interaction parameters between elements."""
         # Shorthand for mole fractions
         Fe_f = self.composition.get_mole_fraction('Fe')
@@ -197,7 +197,7 @@ class ThermodynamicParameters:
             'FeMo': 0
         }
 
-    def _calculate_nitrogen_interaction_energies(self):
+    def calculate_nitrogen_interaction_energies(self):
         """Calculate interaction energies for nitrogen."""
         # Interaction energy terms for nitrogen (J/mol)
         self.U_g = {
@@ -288,33 +288,33 @@ class SFECalculator:
         N_f = self.composition.get_mole_fraction('N')
 
         # Calculate nitrogen bulk energy
-        ΔG_Nbulk = self._calculate_nitrogen_bulk_energy(Fe_f, Mn_f, Cr_f, Ni_f, N_f)
+        ΔG_Nbulk = self.calculate_nitrogen_bulk_energy(Fe_f, Mn_f, Cr_f, Ni_f, N_f)
 
         # Calculate chemical and interaction free energies
-        ΔG_chem = self._calculate_chemical_free_energy(
+        ΔG_chem = self.calculate_chemical_free_energy(
             Fe_f, C_f, Mn_f, Al_f, Cr_f, Ni_f, Mo_f, Cu_f, Si_f
         )
 
-        ΔG_int = self._calculate_interaction_energy(
+        ΔG_int = self.calculate_interaction_energy(
             Fe_f, Mn_f, Al_f, Cr_f, Ni_f, Si_f, C_f
         )
 
         # Calculate magnetic free energy difference
-        ΔG_mag = self._calculate_magnetic_energy(Fe_f, Mn_f, Cr_f, Ni_f, C_f, Si_f, Al_f)
+        ΔG_mag = self.calculate_magnetic_energy(Fe_f, Mn_f, Cr_f, Ni_f, C_f, Si_f, Al_f)
 
         # Calculate density from lattice parameter
-        ρ = self._calculate_density()
+        ρ = self.calculate_density()
 
         # Calculate nitrogen surface energy terms
-        λ_N, X_Ns = self._calculate_nitrogen_surface_parameters(N_f)
-        ΔG_chem_N = self._calculate_nitrogen_chemical_energy(N_f, X_Ns)
-        ΔG_sur = self._calculate_nitrogen_surface_energy(λ_N, N_f, X_Ns)
+        λ_N, X_Ns = self.calculate_nitrogen_surface_parameters(N_f)
+        ΔG_chem_N = self.calculate_nitrogen_chemical_energy(N_f, X_Ns)
+        ΔG_sur = self.calculate_nitrogen_surface_energy(λ_N, N_f, X_Ns)
 
         # Calculate total Gibbs free energy
         ΔG_total = 1000 * (ΔG_chem + ΔG_int + ΔG_mag)
 
         # Calculate grain size effect (strain energy)
-        ΔG_exgs = self._calculate_grain_size_effect()
+        ΔG_exgs = self.calculate_grain_size_effect()
 
         # Calculate partial energy terms
         γ_n = 2000 * ρ * (ΔG_chem_N + ΔG_sur) if ρ != 0 else 0
@@ -328,10 +328,10 @@ class SFECalculator:
 
         return γ_total
 
-    def _calculate_nitrogen_bulk_energy(self, Fe_f, Mn_f, Cr_f, Ni_f, N_f):
+    def calculate_nitrogen_bulk_energy(self, Fe_f, Mn_f, Cr_f, Ni_f, N_f):
         """Calculate nitrogen bulk energy contribution."""
         # Calculate exponential terms for nitrogen bulk energy
-        exp_terms = self._calculate_nitrogen_exp_terms(Fe_f, Mn_f, Cr_f, Ni_f)
+        exp_terms = self.calculate_nitrogen_exp_terms(Fe_f, Mn_f, Cr_f, Ni_f)
 
         # Calculate nitrogen bulk energy
         ΔG_Nbulk = 6 * N_f * (
@@ -343,7 +343,7 @@ class SFECalculator:
 
         return ΔG_Nbulk
 
-    def _calculate_nitrogen_exp_terms(self, Fe_f, Mn_f, Cr_f, Ni_f):
+    def calculate_nitrogen_exp_terms(self, Fe_f, Mn_f, Cr_f, Ni_f):
         """Calculate exponential terms for nitrogen energy calculations."""
         exp_terms = {
             'term1': (
@@ -368,7 +368,7 @@ class SFECalculator:
 
         return exp_terms
 
-    def _calculate_chemical_free_energy(self, Fe_f, C_f, Mn_f, Al_f, Cr_f, Ni_f, Mo_f, Cu_f, Si_f):
+    def calculate_chemical_free_energy(self, Fe_f, C_f, Mn_f, Al_f, Cr_f, Ni_f, Mo_f, Cu_f, Si_f):
         """Calculate chemical free energy contribution."""
         ΔG_chem = (
                 Fe_f * self.thermo.ΔG['Fe'] +
@@ -384,7 +384,7 @@ class SFECalculator:
 
         return ΔG_chem
 
-    def _calculate_interaction_energy(self, Fe_f, Mn_f, Al_f, Cr_f, Ni_f, Si_f, C_f):
+    def calculate_interaction_energy(self, Fe_f, Mn_f, Al_f, Cr_f, Ni_f, Si_f, C_f):
         """Calculate interaction energy contribution."""
         ΔG_int = (
                 Fe_f * Mn_f * self.thermo.ω['FeMn'] +
@@ -399,7 +399,7 @@ class SFECalculator:
 
         return ΔG_int
 
-    def _calculate_magnetic_energy(self, Fe_f, Mn_f, Cr_f, Ni_f, C_f, Si_f, Al_f):
+    def calculate_magnetic_energy(self, Fe_f, Mn_f, Cr_f, Ni_f, C_f, Si_f, Al_f):
         """Calculate magnetic free energy difference."""
         # Calculate magnetic contribution for gamma phase (austenite)
         denom_γ = (
@@ -417,7 +417,7 @@ class SFECalculator:
         τ_γ = self.T / denom_γ if denom_γ != 0 else 0
 
         # Calculate f(τ) for gamma phase
-        f_γ = self._calculate_f_tau(τ_γ)
+        f_γ = self.calculate_f_tau(τ_γ)
 
         # Calculate magnetic term for gamma phase
         term_γ = (
@@ -436,7 +436,7 @@ class SFECalculator:
         τ_ε = self.T / denom_ε if denom_ε != 0 else 0
 
         # Calculate f(τ) for epsilon phase
-        f_ε = self._calculate_f_tau(τ_ε)
+        f_ε = self.calculate_f_tau(τ_ε)
 
         # Calculate magnetic term for epsilon phase
         term_ε = 0.62 * Mn_f - 4 * C_f
@@ -447,7 +447,7 @@ class SFECalculator:
 
         return ΔG_mag
 
-    def _calculate_f_tau(self, τ):
+    def calculate_f_tau(self, τ):
         """Calculate f(τ) function for magnetic contribution."""
         p = PhysicalConstants.p
         d = PhysicalConstants.d
@@ -472,14 +472,14 @@ class SFECalculator:
 
         return f_τ
 
-    def _calculate_density(self):
+    def calculate_density(self):
         """Calculate planar atomic density from lattice parameter."""
         if self.a == 0:
             return 0
         else:
             return 4 / (np.sqrt(3) * self.a ** 2 * PhysicalConstants.NA)
 
-    def _calculate_nitrogen_surface_parameters(self, N_f):
+    def calculate_nitrogen_surface_parameters(self, N_f):
         """Calculate nitrogen surface parameters."""
         # Lambda parameter for nitrogen
         λ_N = -20705 * N_f ** 2 + 23097 * N_f
@@ -492,7 +492,7 @@ class SFECalculator:
 
         return λ_N, X_Ns
 
-    def _calculate_nitrogen_chemical_energy(self, N_f, X_Ns):
+    def calculate_nitrogen_chemical_energy(self, N_f, X_Ns):
         """Calculate chemical driving force for nitrogen partitioning."""
         if N_f > 0 and (0 < X_Ns < 1):
             return PhysicalConstants.R * self.T * (
@@ -502,11 +502,11 @@ class SFECalculator:
         else:
             return 0
 
-    def _calculate_nitrogen_surface_energy(self, λ_N, N_f, X_Ns):
+    def calculate_nitrogen_surface_energy(self, λ_N, N_f, X_Ns):
         """Calculate nitrogen surface energy."""
         return 0.25 * λ_N * (X_Ns - N_f) ** 2
 
-    def _calculate_grain_size_effect(self):
+    def calculate_grain_size_effect(self):
         """Calculate grain size effect (strain energy)."""
         if self.grain_size == 0:
             return 0
@@ -536,9 +536,9 @@ class AdvancedParametersDialog:
         self.window.title("Advanced Options")
         self.params = current_params.copy()
 
-        self._build_gui()
+        self.build_gui()
 
-    def _build_gui(self):
+    def build_gui(self):
         """Build the dialog GUI."""
         # Create entry fields for advanced parameters
         params_info = [
@@ -561,10 +561,10 @@ class AdvancedParametersDialog:
         tk.Button(
             self.window,
             text="Apply",
-            command=self._apply_parameters
+            command=self.apply_parameters
         ).grid(row=len(params_info), column=0, columnspan=2, pady=10)
 
-    def _apply_parameters(self):
+    def apply_parameters(self):
         """Apply the advanced parameters and close the window."""
         try:
             for param_name, entry in self.entries.items():
@@ -612,9 +612,9 @@ class CompositionRangeDialog:
         self.advanced_params = advanced_params.copy()
         self.callback = callback
 
-        self._build_gui()
+        self.build_gui()
 
-    def _build_gui(self):
+    def build_gui(self):
         """Build the dialog GUI."""
         # Create entry fields for element ranges
         elements = ['C', 'Mn', 'Si', 'Al', 'Mo', 'N', 'Cr', 'Ni', 'Cu']
@@ -654,10 +654,10 @@ class CompositionRangeDialog:
         tk.Button(
             self.window,
             text="Calculate",
-            command=self._calculate_for_range
+            command=self.calculate_for_range
         ).grid(row=row, column=0, columnspan=6, pady=10)
 
-    def _calculate_for_range(self):
+    def calculate_for_range(self):
         """Perform parametric study calculations."""
         try:
             # Get ranges for each element
@@ -745,9 +745,9 @@ class SFECalculatorApp:
             'temperature': DefaultParameters.TEMPERATURE
         }
 
-        self._build_gui()
+        self.build_gui()
 
-    def _build_gui(self):
+    def build_gui(self):
         """Build the graphical user interface."""
         # Version and developer info
         version_label = tk.Label(
@@ -824,9 +824,9 @@ class SFECalculatorApp:
             text=f"Grain Size: {self.advanced_params['grain_size']} μm"
         )
         self.params_label.grid(row=row, column=0, columnspan=2, pady=5)
-        self._update_params_display()
+        self.update_params_display()
 
-    def _update_params_display(self):
+    def update_params_display(self):
         """Update the display of current advanced parameters."""
         params_text = f"Grain Size: {self.advanced_params['grain_size']} μm, " + \
                       f"Interfacial Energy: {self.advanced_params['sigma']} mJ/m², " + \
@@ -874,7 +874,7 @@ class SFECalculatorApp:
         dialog = AdvancedParametersDialog(self.root, self.advanced_params)
         self.root.wait_window(dialog.window)
         self.advanced_params = dialog.get_parameters()
-        self._update_params_display()
+        self.update_params_display()
 
     def open_chemical_composition_range(self):
         """Open dialog for parametric study with composition ranges."""
@@ -888,7 +888,7 @@ class SFECalculatorApp:
     def handle_range_results(self, results):
         """Handle results from parametric study."""
         if results:
-            filename = self._generate_unique_filename('sfe_results.xlsx')
+            filename = self.generate_unique_filename('sfe_results.xlsx')
             df = pd.DataFrame(results)
             df.to_excel(filename, index=False)
             messagebox.showinfo("Success", f"Results saved to {filename}")
@@ -951,14 +951,14 @@ class SFECalculatorApp:
             )
 
             # Save results
-            output_file = self._generate_unique_filename('sfe_results_from_import.xlsx')
+            output_file = self.generate_unique_filename('sfe_results_from_import.xlsx')
             df.to_excel(output_file, index=False)
             messagebox.showinfo("Success", f"SFE calculations complete. Results saved to {output_file}")
 
         except Exception as e:
             messagebox.showerror("Error", f"An error occurred: {str(e)}")
 
-    def _generate_unique_filename(self, base_name):
+    def generate_unique_filename(self, base_name):
         """Generate a unique filename to avoid overwriting existing files."""
         counter = 1
         name, ext = os.path.splitext(base_name)
