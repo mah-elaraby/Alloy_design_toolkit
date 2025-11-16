@@ -39,7 +39,7 @@ except Exception:
 pause_event = None
 
 
-def _compute_one_composition(args):
+def compute_one_composition(args):
     """
     Worker function that runs in a separate process.
     Builds property diagram with axis densification, resamples fractions
@@ -181,10 +181,10 @@ class ThermoCalcGUI:
 
         self.element_inputs = {}
 
-        self._build_ui()
-        self.root.after(100, self._size_to_content)
+        self.build_ui()
+        self.root.after(100, self.size_to_content)
 
-    def _build_ui(self):
+    def build_ui(self):
         """Build the main user interface"""
         self.canvas = tk.Canvas(self.root, highlightthickness=0)
         self.scroll = ttk.Scrollbar(self.root, orient="vertical", command=self.canvas.yview)
@@ -197,13 +197,13 @@ class ThermoCalcGUI:
 
         ttk.Label(self.container, text="Thermodynamic Calculator", font=('Arial', 14, 'bold')).pack(pady=10)
 
-        self._make_elements_section(self.container)
-        self._make_temperature_section(self.container)
-        self._make_settings_section(self.container)
-        self._make_buttons_section(self.container)
-        self._make_log_section(self.container)
+        self.make_elements_section(self.container)
+        self.make_temperature_section(self.container)
+        self.make_settings_section(self.container)
+        self.make_buttons_section(self.container)
+        self.make_log_section(self.container)
 
-    def _size_to_content(self, h=24, v=80):
+    def size_to_content(self, h=24, v=80):
         """Adjust window size to fit content"""
         self.root.update_idletasks()
         req_w = self.container.winfo_reqwidth()
@@ -222,13 +222,13 @@ class ThermoCalcGUI:
         self.canvas.config(width=cw, height=th)
         self.root.geometry(f"{int(tw)}x{int(th)}")
 
-    def _make_elements_section(self, parent):
+    def make_elements_section(self, parent):
         """Create the element composition input section"""
         self.el_frame = ttk.LabelFrame(parent, text="Element Composition (wt%)", padding="10")
         self.el_frame.pack(fill=tk.X, pady=5)
-        self._rebuild_element_inputs()
+        self.rebuild_element_inputs()
 
-    def _rebuild_element_inputs(self):
+    def rebuild_element_inputs(self):
         """Rebuild element input fields based on selected elements"""
         for w in self.el_frame.winfo_children():
             w.destroy()
@@ -247,39 +247,39 @@ class ThermoCalcGUI:
                                                                                                        (0.1, 0.1, 0.1))
             ttk.Label(self.el_frame, text=e).grid(row=r, column=0, padx=5, pady=3)
             self.element_inputs[e] = {
-                'start': self._num_entry(self.el_frame, r, 1, s),
-                'end': self._num_entry(self.el_frame, r, 2, en),
-                'step': self._num_entry(self.el_frame, r, 3, st),
+                'start': self.num_entry(self.el_frame, r, 1, s),
+                'end': self.num_entry(self.el_frame, r, 2, en),
+                'step': self.num_entry(self.el_frame, r, 3, st),
             }
             r += 1
 
-    def _num_entry(self, parent, row, col, default):
+    def num_entry(self, parent, row, col, default):
         """Create a numeric entry widget"""
         var = tk.DoubleVar(value=default)
         ttk.Entry(parent, textvariable=var, width=12).grid(row=row, column=col, padx=5, pady=3)
         return var
 
-    def _make_temperature_section(self, parent):
+    def make_temperature_section(self, parent):
         """Create the temperature range input section"""
         f = ttk.LabelFrame(parent, text="Temperature Range (K)", padding="10")
         f.pack(fill=tk.X, pady=5)
         ttk.Label(f, text="Exact output grid (applies to ALL outputs):", font=('Arial', 9, 'bold')).grid(
             row=0, column=0, sticky=tk.W, columnspan=4, pady=(0, 6))
-        self.t_start = self._temp_in(f, 1, "Start:", 573)
-        self.t_end = self._temp_in(f, 1, "End:", 1073, off=2)
-        self.t_step = self._temp_in(f, 2, "Step:", 1)
+        self.t_start = self.temp_in(f, 1, "Start:", 573)
+        self.t_end = self.temp_in(f, 1, "End:", 1073, off=2)
+        self.t_step = self.temp_in(f, 2, "Step:", 1)
         ttk.Label(f,
                   text="Solver densification: linear axis with max step size ≈ 1 K; results are resampled to the grid above.",
                   foreground="gray").grid(row=3, column=0, columnspan=4, sticky=tk.W, pady=(6, 0))
 
-    def _temp_in(self, parent, row, label, default, off=0):
+    def temp_in(self, parent, row, label, default, off=0):
         """Create a temperature input field"""
         ttk.Label(parent, text=label).grid(row=row, column=off, padx=5, sticky=tk.W)
         var = tk.DoubleVar(value=default)
         ttk.Entry(parent, textvariable=var, width=12).grid(row=row, column=off + 1, padx=5)
         return var
 
-    def _make_settings_section(self, parent):
+    def make_settings_section(self, parent):
         """Create the settings section"""
         f = ttk.LabelFrame(parent, text="Settings", padding="10")
         f.pack(fill=tk.X, pady=5)
@@ -294,33 +294,33 @@ class ThermoCalcGUI:
         ttk.Label(f, text="Cache:").grid(row=1, column=0, padx=5, sticky=tk.W, pady=5)
         self.cache = tk.StringVar(value="./cache/")
         ttk.Entry(f, textvariable=self.cache, width=30).grid(row=1, column=1, columnspan=2, padx=5, sticky=tk.W)
-        ttk.Button(f, text="Browse", command=self._browse_cache).grid(row=1, column=3, padx=5)
+        ttk.Button(f, text="Browse", command=self.browse_cache).grid(row=1, column=3, padx=5)
 
-    def _browse_cache(self):
+    def browse_cache(self):
         """Open folder browser for cache directory"""
         folder = filedialog.askdirectory(title="Select Cache Folder")
         if folder:
             self.cache.set(folder)
 
-    def _make_buttons_section(self, parent):
+    def make_buttons_section(self, parent):
         """Create the control buttons section"""
         f = ttk.Frame(parent, padding="10")
         f.pack(fill=tk.X, pady=10)
 
         row1 = ttk.Frame(f)
         row1.pack(fill=tk.X, pady=5)
-        ttk.Button(row1, text="Advanced Options", command=self._show_advanced).pack(side=tk.LEFT, padx=3)
-        ttk.Button(row1, text="Preview", command=self._preview).pack(side=tk.LEFT, padx=3)
+        ttk.Button(row1, text="Advanced Options", command=self.show_advanced).pack(side=tk.LEFT, padx=3)
+        ttk.Button(row1, text="Preview", command=self.preview).pack(side=tk.LEFT, padx=3)
 
         row2 = ttk.Frame(f)
         row2.pack(fill=tk.X, pady=5)
-        self.run_btn = ttk.Button(row2, text="Run Calculations", command=self._run)
+        self.run_btn = ttk.Button(row2, text="Run Calculations", command=self.run)
         self.run_btn.pack(side=tk.LEFT, padx=3, fill=tk.X, expand=True)
 
-        self.pause_btn = ttk.Button(row2, text="Pause", command=self._toggle_pause, state='disabled')
+        self.pause_btn = ttk.Button(row2, text="Pause", command=self.toggle_pause, state='disabled')
         self.pause_btn.pack(side=tk.LEFT, padx=3, fill=tk.X, expand=True)
 
-        self.stop_btn = ttk.Button(row2, text="Stop", command=self._stop, state='disabled')
+        self.stop_btn = ttk.Button(row2, text="Stop", command=self.stop, state='disabled')
         self.stop_btn.pack(side=tk.LEFT, padx=3, fill=tk.X, expand=True)
 
         self.time_est_label = ttk.Label(f, text="Estimated time: --", font=('Arial', 10))
@@ -329,7 +329,7 @@ class ThermoCalcGUI:
         self.progress = ttk.Progressbar(f, maximum=100, length=400)
         self.progress.pack(fill=tk.X, pady=5)
 
-    def _make_log_section(self, parent):
+    def make_log_section(self, parent):
         """Create the log output section"""
         f = ttk.LabelFrame(parent, text="Log", padding="5")
         f.pack(fill=tk.BOTH, expand=True, pady=5)
@@ -339,7 +339,7 @@ class ThermoCalcGUI:
         self.log.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         sb.config(command=self.log.yview)
 
-    def _show_advanced(self):
+    def show_advanced(self):
         """Open advanced options dialog"""
         win = tk.Toplevel(self.root)
         win.title("Advanced Options")
@@ -356,18 +356,18 @@ class ThermoCalcGUI:
         tab_rs = ttk.Frame(nb, padding="20")
         nb.add(tab_rs, text="Results")
 
-        self._adv_elements_tab(tab_el)
-        self._adv_phases_tab(tab_ph)
-        self._adv_results_tab(tab_rs)
+        self.adv_elements_tab(tab_el)
+        self.adv_phases_tab(tab_ph)
+        self.adv_results_tab(tab_rs)
 
         btns = ttk.Frame(win, padding="10")
         btns.pack(fill=tk.X, side=tk.BOTTOM)
-        ttk.Button(btns, text="Cancel", command=lambda: self._adv_cancel(win)).pack(side=tk.RIGHT, padx=5)
-        ttk.Button(btns, text="OK", command=lambda: self._adv_ok(win)).pack(side=tk.RIGHT, padx=5)
+        ttk.Button(btns, text="Cancel", command=lambda: self.adv_cancel(win)).pack(side=tk.RIGHT, padx=5)
+        ttk.Button(btns, text="OK", command=lambda: self.adv_ok(win)).pack(side=tk.RIGHT, padx=5)
 
-        self._store_adv_state()
+        self.store_adv_state()
 
-    def _adv_elements_tab(self, parent):
+    def adv_elements_tab(self, parent):
         """Create the alloying elements selection tab"""
         ttk.Label(parent, text="Select Alloying Elements (Fe is balance)", font=('Arial', 14, 'bold')).pack(
             pady=(0, 10))
@@ -377,7 +377,7 @@ class ThermoCalcGUI:
         self.temp_selected = self.selected_elements.copy()
         for e, (r, c) in self.AVAILABLE_ELEMENTS.items():
             b = tk.Button(pt, text=e, width=4, height=2, font=('Arial', 10, 'bold'),
-                          relief=tk.RAISED, borderwidth=2, command=lambda x=e: self._toggle_element(x))
+                          relief=tk.RAISED, borderwidth=2, command=lambda x=e: self.toggle_element(x))
             if e in self.temp_selected:
                 b.config(bg='#4CAF50', fg='white', relief=tk.SUNKEN)
             else:
@@ -391,7 +391,7 @@ class ThermoCalcGUI:
         self.sel_label = ttk.Label(sf, text=", ".join(sorted(self.temp_selected)), font=('Arial', 11), wraplength=800)
         self.sel_label.pack()
 
-    def _adv_phases_tab(self, parent):
+    def adv_phases_tab(self, parent):
         """Create the phases selection tab"""
         ttk.Label(parent, text="Select Phases", font=('Arial', 14, 'bold')).pack(pady=(0, 10))
         ttk.Label(parent, text="Select at least one phase.", font=('Arial', 10), foreground='gray').pack(pady=(0, 15))
@@ -410,7 +410,7 @@ class ThermoCalcGUI:
             fr.pack(fill=tk.X, padx=20, pady=3)
             ttk.Checkbutton(fr, text=ph, variable=self.phase_vars[ph]).pack(anchor=tk.W)
 
-    def _adv_results_tab(self, parent):
+    def adv_results_tab(self, parent):
         """Create the results selection tab"""
         ttk.Label(parent, text="Select Results to Export", font=('Arial', 14, 'bold')).pack(pady=(0, 10))
         fr = ttk.LabelFrame(parent, text="Results Options", padding="20")
@@ -422,7 +422,7 @@ class ThermoCalcGUI:
         ttk.Label(fr, text="At least one result must be selected.", font=('Arial', 9, 'italic'),
                   foreground='gray').pack(anchor=tk.W, pady=(12, 0))
 
-    def _toggle_element(self, e):
+    def toggle_element(self, e):
         """Toggle element selection"""
         if e == 'Fe':
             return
@@ -434,13 +434,13 @@ class ThermoCalcGUI:
             self.element_buttons[e].config(bg='#4CAF50', fg='white', relief=tk.SUNKEN)
         self.sel_label.config(text=", ".join(sorted(self.temp_selected)))
 
-    def _store_adv_state(self):
+    def store_adv_state(self):
         """Store current advanced options state for cancel functionality"""
         self._orig_elements = self.selected_elements.copy()
         self._orig_phases = self.selected_phases.copy()
         self._orig_results = (self.calc_phase_fraction.get(), self.calc_phase_composition.get())
 
-    def _adv_ok(self, win):
+    def adv_ok(self, win):
         """Apply advanced options changes"""
         if len(self.temp_selected) < 2:
             messagebox.showwarning("Insufficient Elements", "Select at least one alloying element besides Fe.")
@@ -455,9 +455,9 @@ class ThermoCalcGUI:
 
         self.selected_elements = self.temp_selected.copy()
         self.selected_phases = sel_ph
-        self._rebuild_element_inputs()
+        self.rebuild_element_inputs()
         win.destroy()
-        self.root.after(100, self._size_to_content)
+        self.root.after(100, self.size_to_content)
         messagebox.showinfo("Options Updated",
                             f"Elements: {', '.join(sorted(self.selected_elements))}\n"
                             f"Phases: {', '.join(self.selected_phases)}\n"
@@ -465,7 +465,7 @@ class ThermoCalcGUI:
                             f"{'Fraction ' if self.calc_phase_fraction.get() else ''}"
                             f"{'Composition' if self.calc_phase_composition.get() else ''}")
 
-    def _adv_cancel(self, win):
+    def adv_cancel(self, win):
         """Cancel advanced options changes"""
         self.selected_elements = self._orig_elements.copy()
         self.selected_phases = self._orig_phases.copy()
@@ -473,7 +473,7 @@ class ThermoCalcGUI:
         self.calc_phase_composition.set(self._orig_results[1])
         win.destroy()
 
-    def _validate(self):
+    def validate(self):
         """Validate input parameters"""
         try:
             for e, f in self.element_inputs.items():
@@ -495,7 +495,7 @@ class ThermoCalcGUI:
             messagebox.showerror("Invalid Input", str(e))
             return False
 
-    def _get_config(self):
+    def get_config(self):
         """Get current configuration"""
         cfg = {
             'database': getattr(self, 'database').get(),
@@ -517,11 +517,11 @@ class ThermoCalcGUI:
             cfg['elements'][e] = {'start': f['start'].get(), 'end': f['end'].get(), 'step': f['step'].get()}
         return cfg
 
-    def _preview(self):
+    def preview(self):
         """Show calculation preview"""
-        if not self._validate():
+        if not self.validate():
             return
-        cfg = self._get_config()
+        cfg = self.get_config()
         nT = int((cfg['temperature']['end'] - cfg['temperature']['start']) / cfg['temperature']['step']) + 1
         total = 1
         detail = []
@@ -541,14 +541,14 @@ class ThermoCalcGUI:
                                                                   f"{'Composition' if cfg['do_composition'] else ''}\n"
                                                                   f"Output: {self.OUTPUT_FILE}\n"
                                                                   f"Chunk size: {self.CHUNK_SIZE} alloys per intermediate file")
-        self._log("=" * 40)
-        self._log(msg)
-        self._log("=" * 40)
+        self.log("=" * 40)
+        self.log(msg)
+        self.log("=" * 40)
         messagebox.showinfo("Preview", msg)
 
-    def _run(self):
+    def run(self):
         """Start calculation process"""
-        if not self._validate():
+        if not self.validate():
             return
         if not TC_PYTHON_AVAILABLE:
             messagebox.showerror("TC-Python Missing", "Install and license TC-Python to run calculations.")
@@ -562,19 +562,19 @@ class ThermoCalcGUI:
         self.pause_requested = False
         self.progress['value'] = 0
         self.time_est_label.config(text="Estimated time: Calculating...")
-        self._log("=" * 50)
-        self._log("Starting calculations (parallel)...")
-        self._log("=" * 50)
-        self.calc_thread = threading.Thread(target=self._worker_parallel, daemon=True)
+        self.log("=" * 50)
+        self.log("Starting calculations (parallel)...")
+        self.log("=" * 50)
+        self.calc_thread = threading.Thread(target=self.worker_parallel, daemon=True)
         self.calc_thread.start()
 
-    def _stop(self):
+    def stop(self):
         """Request calculation stop"""
         self.stop_requested = True
-        self._log("Stop requested. Waiting for running tasks to finish...")
+        self.log("Stop requested. Waiting for running tasks to finish...")
         self.stop_btn.config(state='disabled')
 
-    def _toggle_pause(self):
+    def toggle_pause(self):
         """Toggle between pause and continue states"""
         global pause_event
 
@@ -583,15 +583,15 @@ class ThermoCalcGUI:
             self.pause_btn.config(text="Pause")
             if pause_event is not None:
                 pause_event.clear()
-            self._log("Calculations resumed.")
+            self.log("Calculations resumed.")
         else:
             self.pause_requested = True
             self.pause_btn.config(text="Continue")
             if pause_event is not None:
                 pause_event.set()
-            self._log("Pausing calculations... (current tasks will finish first)")
+            self.log("Pausing calculations... (current tasks will finish first)")
 
-    def _format_time_estimate(self, seconds):
+    def format_time_estimate(self, seconds):
         """Format seconds into dd-hh-mm format"""
         if seconds <= 0:
             return "--"
@@ -601,10 +601,10 @@ class ThermoCalcGUI:
         minutes, _ = divmod(remainder, 60)
         return f"{days:02d}-{hours:02d}-{minutes:02d}"
 
-    def _worker_parallel(self):
+    def worker_parallel(self):
         """Main parallel calculation worker with chunked saving"""
         try:
-            cfg = self._get_config()
+            cfg = self.get_config()
             os.makedirs(cfg['cache'], exist_ok=True)
             os.makedirs(self.TEMP_DIR, exist_ok=True)
 
@@ -625,8 +625,8 @@ class ThermoCalcGUI:
                 comp_list.append(dict(zip(names, vals)))
 
             if not comp_list:
-                self._log("No compositions to evaluate.")
-                self._reset_buttons()
+                self.log("No compositions to evaluate.")
+                self.reset_buttons()
                 return
 
             static = (cfg['database'], cfg['cache'], cfg['selected_elements'], cfg['selected_phases'],
@@ -640,8 +640,8 @@ class ThermoCalcGUI:
             chunk_files = []
 
             max_workers = max(1, int(cfg['workers']))
-            self._log(f"Launching pool with {max_workers} worker process(es)...")
-            self._log(f"Total alloys: {total:,} | Chunk size: {self.CHUNK_SIZE}")
+            self.log(f"Launching pool with {max_workers} worker process(es)...")
+            self.log(f"Total alloys: {total:,} | Chunk size: {self.CHUNK_SIZE}")
 
             start_time = time.time()
             last_update_time = start_time
@@ -656,7 +656,7 @@ class ThermoCalcGUI:
                 for i in range(initial_batch):
                     if self.stop_requested:
                         break
-                    fut = exe.submit(_compute_one_composition, static + (comp_list[i],))
+                    fut = exe.submit(compute_one_composition, static + (comp_list[i],))
                     pending_futures[fut] = i
                     submitted += 1
 
@@ -686,14 +686,14 @@ class ThermoCalcGUI:
                         current_chunk_rows.extend(rows)
                         del pending_futures[completed]
                     except Exception as e:
-                        self._log(f"[Worker error] {e}")
+                        self.log(f"[Worker error] {e}")
                         del pending_futures[completed]
 
                     done += 1
 
                     # Submit next composition
                     if submitted < len(comp_list) and not self.pause_requested and not self.stop_requested:
-                        new_fut = exe.submit(_compute_one_composition, static + (comp_list[submitted],))
+                        new_fut = exe.submit(compute_one_composition, static + (comp_list[submitted],))
                         pending_futures[new_fut] = submitted
                         submitted += 1
 
@@ -713,7 +713,7 @@ class ThermoCalcGUI:
                         current_chunk_rows.clear()
                         del df_chunk
 
-                        self._log(f"Saved chunk {chunk_counter} to {chunk_file}")
+                        self.log(f"Saved chunk {chunk_counter} to {chunk_file}")
 
                     # Update progress periodically
                     current_time = time.time()
@@ -726,7 +726,7 @@ class ThermoCalcGUI:
                             avg_time_per_alloy = elapsed / done
                             remaining = total - done
                             estimated_seconds = remaining * avg_time_per_alloy
-                            time_str = self._format_time_estimate(estimated_seconds)
+                            time_str = self.format_time_estimate(estimated_seconds)
                             rate = done / (elapsed / 60.0)
 
                             self.root.after(0, lambda t=time_str, r=rate: self.time_est_label.config(
@@ -739,7 +739,7 @@ class ThermoCalcGUI:
                         pct = (done / total) * 100.0
                         elapsed = current_time - start_time
                         rate = done / (elapsed / 60.0) if elapsed > 0 else 0
-                        self._log(f"Progress: {done}/{total} ({pct:.1f}%) - {rate:.1f} alloys/min")
+                        self.log(f"Progress: {done}/{total} ({pct:.1f}%) - {rate:.1f} alloys/min")
                         last_log_time = current_time
 
             # Save remaining rows
@@ -753,16 +753,16 @@ class ThermoCalcGUI:
                 df_chunk = df_chunk[ordered]
                 df_chunk.to_csv(chunk_file, index=False)
                 chunk_files.append(chunk_file)
-                self._log(f"Saved final chunk {chunk_counter}")
+                self.log(f"Saved final chunk {chunk_counter}")
                 current_chunk_rows.clear()
                 del df_chunk
 
             # Merge chunks
             if chunk_files:
-                self._log(f"Merging {len(chunk_files)} chunks...")
+                self.log(f"Merging {len(chunk_files)} chunks...")
                 df_final = pd.concat([pd.read_csv(f) for f in chunk_files], ignore_index=True)
                 df_final.to_csv(self.OUTPUT_FILE, index=False)
-                self._log(f"Saved {len(df_final):,} rows to {self.OUTPUT_FILE}")
+                self.log(f"Saved {len(df_final):,} rows to {self.OUTPUT_FILE}")
 
                 # Cleanup temporary files
                 for chunk_file in chunk_files:
@@ -777,17 +777,17 @@ class ThermoCalcGUI:
                     pass
 
             total_time = time.time() - start_time
-            self._log(f"Total time: {self._format_time_estimate(total_time)}")
-            self._log("Complete!" if not self.stop_requested else "Stopped by user.")
+            self.log(f"Total time: {self._format_time_estimate(total_time)}")
+            self.log("Complete!" if not self.stop_requested else "Stopped by user.")
 
         except Exception as e:
-            self._log(f"ERROR: {e}")
+            self.log(f"ERROR: {e}")
             import traceback
-            self._log(traceback.format_exc())
+            self.log(traceback.format_exc())
         finally:
-            self.root.after(0, self._reset_buttons)
+            self.root.after(0, self.reset_buttons)
 
-    def _reset_buttons(self):
+    def reset_buttons(self):
         """Reset button states after calculation"""
         global pause_event
         self.run_btn.config(state='normal')
@@ -799,7 +799,7 @@ class ThermoCalcGUI:
         if pause_event is not None:
             pause_event.clear()
 
-    def _log(self, msg):
+    def log(self, msg):
         """Add message to log window"""
         self.log.insert(tk.END, msg + "\n")
         self.log.see(tk.END)
