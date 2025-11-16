@@ -10,31 +10,31 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 
 
 class PhaseCalculator:
-    """Handles phase fraction and composition calculations using TC-Python."""
+    " Handles phase fraction and composition calculations using TC-Python. "
 
     def __init__(self, app):
         self.app = app
 
     def calculate(self):
-        """Execute phase calculations."""
+        "Execute phase calculations."
         try:
             self.app.update_log("Setting up phase calculations...")
 
             # Build composition list
-            comp_list = self._build_composition_list()
+            comp_list = self.build_composition_list()
             if not comp_list:
                 self.app.update_log("ERROR: No compositions to evaluate")
                 return None
 
             # Run calculations in parallel
-            results = self._run_parallel_calculations(comp_list)
+            results = self.run_parallel_calculations(comp_list)
             return results
 
         except Exception as e:
             self.app.update_log(f"ERROR in phase calculations: {str(e)}")
             return None
 
-    def _build_composition_list(self):
+    def build_composition_list(self):
         """Build list of composition dictionaries."""
         comp_list = []
         names = sorted([e for e in self.app.selected_elements if e != 'Fe'])
@@ -56,7 +56,7 @@ class PhaseCalculator:
 
         return comp_list
 
-    def _run_parallel_calculations(self, comp_list):
+    def run_parallel_calculations(self, comp_list):
         """Run calculations in parallel processes."""
         static_args = (
             self.app.phase_database,
@@ -80,7 +80,7 @@ class PhaseCalculator:
             for comp in comp_list:
                 if self.app.workflow_runner.stop_requested:
                     break
-                futures.append(executor.submit(_compute_one_composition, static_args + (comp,)))
+                futures.append(executor.submit(compute_one_composition, static_args + (comp,)))
 
             for i, future in enumerate(as_completed(futures)):
                 if self.app.workflow_runner.stop_requested:
@@ -101,7 +101,7 @@ class PhaseCalculator:
 
 
 # Worker function (must be at module level for multiprocessing)
-def _compute_one_composition(args):
+def compute_one_composition(args):
     """
     Runs phase calculation for one composition in a separate process.
     This is the ACTUAL calculation code from "1 phase fraction and composition.py"
