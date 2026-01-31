@@ -42,7 +42,8 @@ class ModelsTab:
             ("Stacking fault energy", "3 SFE model.py"),
             ("Multi-objective optimization", "4 MOO algorithm.py"),
             ("Precipitation kinetics", "5 Precipitation kinetics.py"),
-            ("PRISMA GM sorting", "6 PRISMA GM sorting.py")
+            ("PRISMA GM sorting", "6 PRISMA GM sorting.py"),
+            ("Diffusion kinetics", "7 Diffusion kinetics.py")
         ]
 
         button_frame = ttk.Frame(self.frame)
