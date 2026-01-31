@@ -14,6 +14,7 @@ This toolkit provides an automatic computational workflow for designing steel al
 - **Multi-objective Optimization**: Sophisticated optimization algorithms for alloy composition
 - **Precipitation Kinetics**: Modeling of precipitation behavior in medium-Mn steels
 - **Annealing Time Optimization**: Automated optimization of heat treatment parameters
+- **Diffusion Kinetics**: DICTRA-based diffusion simulations for multi-region diffusion couples
 
 ## Documentation
 
@@ -43,6 +44,13 @@ Alloy_design_toolkit/
 │   ├── tabs/                         # Individual workflow step tabs
 │   └── dialogs/                      # Configuration and input dialogs
 ├── standalone_scripts/               # Independent utility scripts
+│   ├── 1 phase fraction and composition.py
+│   ├── 2 retained austenite model.py
+│   ├── 3 SFE model.py
+│   ├── 4 MOO algorithm.py
+│   ├── 5 Precipitation kinetics.py
+│   ├── 6 PRISMA GM sorting.py
+│   └── 7 Diffusion kinetics.py       # DICTRA diffusion simulations
 └── utils/                            # Utility functions and helpers
 ```
 
