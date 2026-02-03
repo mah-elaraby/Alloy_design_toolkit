@@ -25,7 +25,6 @@ License: MIT
 """
 
 # Standard library imports
-import csv
 import json
 import os
 import re
@@ -33,7 +32,6 @@ import sys
 import threading
 import time
 import traceback
-from pathlib import Path
 
 # GUI imports
 import tkinter as tk
@@ -41,7 +39,6 @@ from tkinter import ttk, filedialog, messagebox
 
 # TC-Python import with availability check
 try:
-    import tc_python
     from tc_python import TCPython
     from tc_python.diffusion import (
         Region, CompositionProfile,
