@@ -39,10 +39,6 @@ from pathlib import Path
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 
-# Set TC-Python environment variables (must be before tc_python import)
-os.environ["TC24B_HOME"] = "/Applications/Thermo-Calc-2024b.app/Contents/Resources"
-os.environ["LSHOST"] = "130.231.70.40"
-
 # TC-Python import with availability check
 try:
     import tc_python
