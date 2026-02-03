@@ -1936,51 +1936,39 @@ class DICTRACalculatorGUI:
         canvas.get_tk_widget().pack(fill='both', expand=True)
         NavigationToolbar2Tk(canvas, self.plot_frame).update()
     
-    def get_available_times(self, data_dict):
-        """Get all available times from a data dictionary."""
-        return sorted(data_dict.keys()) if data_dict else []
+    # ==================== PLOTTING HELPER METHODS ====================
     
-    def find_closest_time(self, target, available_times):
-        """Find the closest available time to the target time."""
-        if not available_times:
-            return None
-        if target in available_times:
-            return target
-        # Find closest
-        closest = min(available_times, key=lambda t: abs(t - target))
-        return closest
+    def _get_times_to_plot(self, data_dict, requested_times):
+        """Get valid times to plot, finding closest matches if needed."""
+        available = sorted(data_dict.keys()) if data_dict else []
+        if not available:
+            return []
+        
+        # Find closest available time for each requested time
+        result = []
+        for t in requested_times:
+            closest = min(available, key=lambda x: abs(x - t))
+            if closest not in result:
+                result.append(closest)
+        return result if result else available
+    
+    def _show_no_data(self, ax, message):
+        """Show 'no data' message centered in plot."""
+        ax.text(0.5, 0.5, message, ha='center', va='center', transform=ax.transAxes)
     
     def plot_composition_vs_distance(self, ax, element, times, x_factor, x_unit):
-        """Plot composition profile vs distance for multiple times."""
-        compositions = self.result_data.get('compositions', {})
-        if element not in compositions:
-            ax.text(0.5, 0.5, f"No data for element: {element}", ha='center', va='center', transform=ax.transAxes)
-            return
+        """Plot composition vs distance for an element at multiple times."""
+        data = self.result_data.get('compositions', {}).get(element)
+        if not data:
+            return self._show_no_data(ax, f"No data for element: {element}")
         
-        elem_data = compositions[element]
-        available_times = self.get_available_times(elem_data)
-        
-        if not available_times:
-            ax.text(0.5, 0.5, f"No time data available for {element}", ha='center', va='center', transform=ax.transAxes)
-            return
-        
-        # If no specific times requested or times don't match, use all available
-        times_to_plot = []
-        for t in times:
-            closest = self.find_closest_time(t, available_times)
-            if closest is not None and closest not in times_to_plot:
-                times_to_plot.append(closest)
-        
-        # If still no times, use all available
-        if not times_to_plot:
-            times_to_plot = available_times
-        
-        colors = plt.cm.viridis([i / max(1, len(times_to_plot) - 1) for i in range(len(times_to_plot))])
+        times_to_plot = self._get_times_to_plot(data, times)
+        colors = plt.cm.viridis([i / max(1, len(times_to_plot)-1) for i in range(len(times_to_plot))])
         
         for i, t in enumerate(times_to_plot):
-            if t in elem_data:
-                positions, comps = elem_data[t]
-                ax.plot([p * x_factor for p in positions], [c * 100 for c in comps],
+            if t in data:
+                pos, comp = data[t]
+                ax.plot([p * x_factor for p in pos], [c * 100 for c in comp],
                        color=colors[i], label=f"t={self.format_time(t)}", linewidth=2)
         
         ax.set_xlabel(f"Distance ({x_unit})")
@@ -1989,129 +1977,91 @@ class DICTRACalculatorGUI:
         ax.legend(title="Time", loc='best')
     
     def plot_composition_vs_time(self, ax, element, times):
-        """Plot average composition at interface vs time."""
-        compositions = self.result_data.get('compositions', {})
-        if element not in compositions:
-            ax.text(0.5, 0.5, f"No data for element: {element}", ha='center', va='center', transform=ax.transAxes)
-            return
+        """Plot element composition at interface vs time."""
+        data = self.result_data.get('compositions', {}).get(element)
+        if not data:
+            return self._show_no_data(ax, f"No data for element: {element}")
         
-        elem_data = compositions[element]
-        time_values = []
-        avg_comps = []
+        t_vals, c_vals = [], []
+        for t in sorted(data.keys()):
+            pos, comp = data[t]
+            if comp:
+                t_vals.append(t)
+                c_vals.append(comp[len(comp)//2] * 100)  # Middle = interface
         
-        for t in sorted(elem_data.keys()):
-            positions, comps = elem_data[t]
-            if comps:
-                # Get composition at interface (middle of system)
-                mid_idx = len(comps) // 2
-                time_values.append(t)
-                avg_comps.append(comps[mid_idx] * 100)
-        
-        ax.plot(time_values, avg_comps, 'b-o', linewidth=2, markersize=6)
+        ax.plot(t_vals, c_vals, 'b-o', linewidth=2, markersize=6)
         ax.set_xlabel("Time (s)")
         ax.set_ylabel(f"{element} at interface (wt%)")
-        ax.set_title(f"{element} Composition at Interface vs Time")
+        ax.set_title(f"{element} at Interface vs Time")
     
     def plot_phase_fraction_vs_distance(self, ax, phase, times, x_factor, x_unit):
-        """Plot phase fraction vs distance for multiple times."""
-        phase_fractions = self.result_data.get('phase_fractions', {})
-        if phase not in phase_fractions:
-            ax.text(0.5, 0.5, f"No data for phase: {phase}", ha='center', va='center', transform=ax.transAxes)
-            return
+        """Plot phase fraction vs distance at multiple times."""
+        data = self.result_data.get('phase_fractions', {}).get(phase)
+        if not data:
+            return self._show_no_data(ax, f"No data for phase: {phase}")
         
-        phase_data = phase_fractions[phase]
-        available_times = self.get_available_times(phase_data)
-        
-        if not available_times:
-            ax.text(0.5, 0.5, f"No time data available for {phase}", ha='center', va='center', transform=ax.transAxes)
-            return
-        
-        # Find closest times or use all available
-        times_to_plot = []
-        for t in times:
-            closest = self.find_closest_time(t, available_times)
-            if closest is not None and closest not in times_to_plot:
-                times_to_plot.append(closest)
-        
-        if not times_to_plot:
-            times_to_plot = available_times
-        
-        colors = plt.cm.viridis([i / max(1, len(times_to_plot) - 1) for i in range(len(times_to_plot))])
+        times_to_plot = self._get_times_to_plot(data, times)
+        colors = plt.cm.viridis([i / max(1, len(times_to_plot)-1) for i in range(len(times_to_plot))])
         
         for i, t in enumerate(times_to_plot):
-            if t in phase_data:
-                positions, fracs = phase_data[t]
-                ax.plot([p * x_factor for p in positions], [f * 100 for f in fracs],
+            if t in data:
+                pos, frac = data[t]
+                ax.plot([p * x_factor for p in pos], [f * 100 for f in frac],
                        color=colors[i], label=f"t={self.format_time(t)}", linewidth=2)
         
         ax.set_xlabel(f"Distance ({x_unit})")
         ax.set_ylabel(f"{phase} Fraction (%)")
-        ax.set_title(f"{phase} Fraction vs Distance")
+        ax.set_title(f"{phase} vs Distance")
         ax.legend(title="Time", loc='best')
     
     def plot_phase_fraction_vs_time(self, ax, phase, times):
-        """Plot total phase fraction vs time."""
-        system_fractions = self.result_data.get('system_phase_fractions', {})
-        if not system_fractions:
-            ax.text(0.5, 0.5, "No system phase fraction data available", ha='center', va='center', transform=ax.transAxes)
-            return
+        """Plot system-level phase fraction vs time."""
+        sys_frac = self.result_data.get('system_phase_fractions', {})
+        if not sys_frac:
+            return self._show_no_data(ax, "No system phase fraction data")
         
-        time_values = []
-        phase_values = []
-        
-        for t in sorted(system_fractions.keys()):
-            if phase in system_fractions[t]:
-                time_values.append(t)
-                phase_values.append(system_fractions[t][phase])
-        
+        t_vals = [t for t in sorted(sys_frac.keys()) if phase in sys_frac[t]]
+        p_vals = [sys_frac[t][phase] for t in t_vals]
         color = 'blue' if 'FCC' in phase else 'red'
-        ax.plot(time_values, phase_values, f'{color[0]}-o', linewidth=2, markersize=6, color=color)
+        
+        ax.plot(t_vals, p_vals, '-o', linewidth=2, markersize=6, color=color)
         ax.set_xlabel("Time (s)")
         ax.set_ylabel(f"{phase} Fraction (%)")
-        ax.set_title(f"Total {phase} Fraction vs Time")
+        ax.set_title(f"Total {phase} vs Time")
     
     def plot_interface_position(self, ax, times):
         """Plot interface position vs time."""
-        system_fractions = self.result_data.get('system_phase_fractions', {})
-        if not system_fractions:
-            ax.text(0.5, 0.5, "No interface position data available", ha='center', va='center', transform=ax.transAxes)
-            return
+        sys_frac = self.result_data.get('system_phase_fractions', {})
+        if not sys_frac:
+            return self._show_no_data(ax, "No interface position data")
         
-        time_values = []
-        positions = []
+        t_vals = [t for t in sorted(sys_frac.keys()) if 'interface_position' in sys_frac[t]]
+        pos_vals = [sys_frac[t]['interface_position'] for t in t_vals]
         
-        for t in sorted(system_fractions.keys()):
-            if 'interface_position' in system_fractions[t]:
-                time_values.append(t)
-                positions.append(system_fractions[t]['interface_position'])
-        
-        ax.plot(time_values, positions, 'g-o', linewidth=2, markersize=6)
+        ax.plot(t_vals, pos_vals, 'g-o', linewidth=2, markersize=6)
         ax.set_xlabel("Time (s)")
         ax.set_ylabel("Interface Position (µm)")
         ax.set_title("Phase Interface Position vs Time")
     
     def plot_system_phase_fractions(self, ax, times):
-        """Plot bar chart of system-averaged phase fractions."""
-        system_fractions = self.result_data.get('system_phase_fractions', {})
-        if not system_fractions:
-            ax.text(0.5, 0.5, "No system phase fraction data available", ha='center', va='center', transform=ax.transAxes)
-            return
+        """Plot bar chart of final phase fractions."""
+        sys_frac = self.result_data.get('system_phase_fractions', {})
+        if not sys_frac:
+            return self._show_no_data(ax, "No system phase fraction data")
         
-        # Get latest time
-        latest_time = max(system_fractions.keys())
-        latest_data = system_fractions[latest_time]
+        latest_t = max(sys_frac.keys())
+        latest = sys_frac[latest_t]
         
         phases = ['FCC_A1\n(Austenite)', 'BCC_A2\n(Ferrite)']
-        fractions = [latest_data.get('FCC_A1', 0), latest_data.get('BCC_A2', 0)]
-        colors = ['blue', 'red']
+        fracs = [latest.get('FCC_A1', 0), latest.get('BCC_A2', 0)]
         
-        bars = ax.bar(phases, fractions, color=colors, edgecolor='black', linewidth=2)
-        for bar, frac in zip(bars, fractions):
+        bars = ax.bar(phases, fracs, color=['blue', 'red'], edgecolor='black', linewidth=2)
+        for bar, f in zip(bars, fracs):
             ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 2,
-                   f'{frac:.1f}%', ha='center', va='bottom', fontsize=14, fontweight='bold')
+                   f'{f:.1f}%', ha='center', va='bottom', fontsize=14, fontweight='bold')
         
         ax.set_ylabel("Phase Fraction (%)")
-        ax.set_title(f"System-Averaged Phase Fractions at t={self.format_time(latest_time)}")
+        ax.set_title(f"Phase Fractions at t={self.format_time(latest_t)}")
     
     def format_time(self, t):
         """Format time value nicely."""
@@ -2384,20 +2334,62 @@ class DICTRACalculatorGUI:
                     'system_phase_fractions': {}
                 }
                 
-                # Get time steps
-                time_steps = dictra_result.get_time_steps()
+                # Get all time steps and sample up to 100 points for detailed results
+                all_time_steps = dictra_result.get_time_steps()
+                result['data']['time_steps'] = list(all_time_steps) if all_time_steps else []
                 
-                # Extract composition profiles
+                # Sample time points: use ~100 evenly spaced points if too many
+                if all_time_steps and len(all_time_steps) > 100:
+                    step = max(1, len(all_time_steps) // 100)
+                    extraction_times = list(all_time_steps[::step])
+                    if all_time_steps[-1] not in extraction_times:
+                        extraction_times.append(all_time_steps[-1])
+                else:
+                    extraction_times = list(all_time_steps) if all_time_steps else []
+                
+                result['data']['extraction_times'] = extraction_times
+                
+                # Extract composition profiles for each element at all extraction times
                 for elem in elements:
                     if elem == 'Fe':
                         continue
                     result['data']['compositions'][elem] = {}
-                    for t in [time_steps[0], time_steps[-1]]:  # Start and end times
+                    for t in extraction_times:
                         try:
                             positions, comps = dictra_result.get_mass_fraction_of_component_at_time(elem, t)
-                            result['data']['compositions'][elem][t] = (positions, comps)
+                            result['data']['compositions'][elem][t] = (list(positions), list(comps))
                         except:
                             pass
+                
+                # Extract phase fractions for FCC_A1 and BCC_A2
+                for phase in ['FCC_A1', 'BCC_A2']:
+                    result['data']['phase_fractions'][phase] = {}
+                    for t in extraction_times:
+                        try:
+                            positions, fractions = dictra_result.get_mass_fraction_of_phase_at_time(phase, t)
+                            result['data']['phase_fractions'][phase][t] = (list(positions), list(fractions))
+                        except:
+                            pass
+                
+                # Calculate system-level phase fractions based on interface position
+                total_width_m = sum(r['width_um'] * 1e-6 for r in alloy_config['regions'])
+                result['data']['total_width_um'] = total_width_m * 1e6
+                
+                for t in extraction_times:
+                    try:
+                        fcc_data = result['data']['phase_fractions'].get('FCC_A1', {})
+                        if t in fcc_data:
+                            positions, _ = fcc_data[t]
+                            if positions:
+                                interface_pos = max(positions)
+                                fcc_fraction = interface_pos / total_width_m
+                                result['data']['system_phase_fractions'][t] = {
+                                    'FCC_A1': fcc_fraction * 100,
+                                    'BCC_A2': (1.0 - fcc_fraction) * 100,
+                                    'interface_position_um': interface_pos * 1e6
+                                }
+                    except:
+                        pass
                 
                 result['success'] = True
                 
@@ -2478,157 +2470,91 @@ class DICTRACalculatorGUI:
             self.write_log(f"Error saving {filepath}: {e}")
     
     def export_results_to_csv(self):
-        """Export all results to Excel file with multiple sheets."""
+        """Export results to Excel file with multiple sheets."""
         if not hasattr(self, 'result_data') or not self.result_data:
-            messagebox.showwarning("No Data", "No results to export. Run a calculation first.")
+            messagebox.showwarning("No Data", "No results to export.")
+            return
+        if not PANDAS_AVAILABLE:
+            messagebox.showerror("Missing Package", "pandas required: pip install pandas openpyxl")
             return
         
-        if not PANDAS_AVAILABLE:
-            messagebox.showerror("Missing Package", "pandas is required for Excel export.\nInstall with: pip install pandas openpyxl")
-            return
-            
-        # Get filename
         filename = filedialog.asksaveasfilename(
             defaultextension=".xlsx",
-            filetypes=[("Excel files", "*.xlsx"), ("All files", "*.*")],
+            filetypes=[("Excel files", "*.xlsx")],
             title="Save Results to Excel"
         )
         if not filename:
             return
         
-        try:
-            sheets_saved = []
-            self.write_log(f"Starting export, result_data keys: {list(self.result_data.keys())}")
+        def build_profile_df(data_dict, value_multiplier=100, col_suffix=''):
+            """Build DataFrame from {key: {time: (positions, values)}} data."""
+            keys = list(data_dict.keys())
+            all_times = set()
+            for k in keys:
+                all_times.update(data_dict[k].keys())
             
+            rows = []
+            for t in sorted(all_times):
+                # Get positions from first key that has data at this time
+                positions = None
+                for k in keys:
+                    if t in data_dict[k]:
+                        positions, _ = data_dict[k][t]
+                        if positions:
+                            break
+                
+                if positions:
+                    for i, pos in enumerate(positions):
+                        row = {'Time_s': t, 'Position_um': pos * 1e6}
+                        for k in keys:
+                            val = None
+                            if t in data_dict[k]:
+                                _, values = data_dict[k][t]
+                                if values and i < len(values):
+                                    val = values[i] * value_multiplier
+                            row[f'{k}{col_suffix}'] = val
+                        rows.append(row)
+            return pd.DataFrame(rows) if rows else None
+        
+        try:
+            sheets = []
             with pd.ExcelWriter(filename, engine='openpyxl') as writer:
-                # === Sheet 1: Compositions vs Distance ===
-                compositions = self.result_data.get('compositions', {})
-                self.write_log(f"  Compositions: {len(compositions)} elements")
-                if compositions:
-                    elements = list(compositions.keys())
-                    # Get all times across all elements
-                    all_times = set()
-                    for elem, elem_data in compositions.items():
-                        all_times.update(elem_data.keys())
-                        self.write_log(f"    {elem}: {len(elem_data)} time points")
-                    
-                    if all_times:
-                        times = sorted(all_times)
-                        
-                        # Export each time as separate columns, using each time's own positions
-                        # Build a "long format" dataframe with Time, Position, Element, Value
-                        rows = []
-                        for t in times:
-                            # Get positions for this specific time from any element
-                            time_positions = None
-                            for elem in elements:
-                                if t in compositions[elem]:
-                                    pos, _ = compositions[elem][t]
-                                    if pos:
-                                        time_positions = pos
-                                        break
-                            
-                            if time_positions:
-                                for i, pos in enumerate(time_positions):
-                                    row = {'Time_s': t, 'Position_um': pos * 1e6}
-                                    for elem in elements:
-                                        if t in compositions[elem]:
-                                            _, comps = compositions[elem][t]
-                                            if comps and i < len(comps):
-                                                row[f'{elem}_wt%'] = comps[i] * 100
-                                            else:
-                                                row[f'{elem}_wt%'] = None
-                                        else:
-                                            row[f'{elem}_wt%'] = None
-                                    rows.append(row)
-                        
-                        if rows:
-                            df_comp = pd.DataFrame(rows)
-                            df_comp.to_excel(writer, sheet_name='Compositions', index=False)
-                            sheets_saved.append('Compositions')
-                            self.write_log(f"    Created Compositions sheet: {len(df_comp)} rows")
+                # Compositions
+                comps = self.result_data.get('compositions', {})
+                if comps:
+                    df = build_profile_df(comps, value_multiplier=100, col_suffix='_wt%')
+                    if df is not None:
+                        df.to_excel(writer, sheet_name='Compositions', index=False)
+                        sheets.append('Compositions')
                 
-                # === Sheet 2: Phase Fractions vs Distance ===
-                phase_fractions = self.result_data.get('phase_fractions', {})
-                phases_with_data = {p: d for p, d in phase_fractions.items() if d}
-                self.write_log(f"  Phase fractions: {len(phases_with_data)} phases with data")
-                if phases_with_data:
-                    phases = list(phases_with_data.keys())
-                    all_times = set()
-                    for phase_data in phases_with_data.values():
-                        all_times.update(phase_data.keys())
-                    
-                    if all_times:
-                        times = sorted(all_times)
-                        
-                        # Build long format dataframe with Time, Position, Phase columns
-                        rows = []
-                        for t in times:
-                            # Get positions for this specific time from any phase
-                            time_positions = None
-                            for phase in phases:
-                                if t in phases_with_data[phase]:
-                                    pos, _ = phases_with_data[phase][t]
-                                    if pos:
-                                        time_positions = pos
-                                        break
-                            
-                            if time_positions:
-                                for i, pos in enumerate(time_positions):
-                                    row = {'Time_s': t, 'Position_um': pos * 1e6}
-                                    for phase in phases:
-                                        if t in phases_with_data[phase]:
-                                            _, fracs = phases_with_data[phase][t]
-                                            if fracs and i < len(fracs):
-                                                row[f'{phase}_%'] = fracs[i] * 100
-                                            else:
-                                                row[f'{phase}_%'] = None
-                                        else:
-                                            row[f'{phase}_%'] = None
-                                    rows.append(row)
-                        
-                        if rows:
-                            df_phase = pd.DataFrame(rows)
-                            df_phase.to_excel(writer, sheet_name='Phase_Fractions', index=False)
-                            sheets_saved.append('Phase_Fractions')
-                            self.write_log(f"    Created Phase_Fractions sheet: {len(df_phase)} rows")
+                # Phase fractions
+                phases = {p: d for p, d in self.result_data.get('phase_fractions', {}).items() if d}
+                if phases:
+                    df = build_profile_df(phases, value_multiplier=100, col_suffix='_%')
+                    if df is not None:
+                        df.to_excel(writer, sheet_name='Phase_Fractions', index=False)
+                        sheets.append('Phase_Fractions')
                 
-                # === Sheet 3: System Phase Fractions vs Time ===
-                system_fractions = self.result_data.get('system_phase_fractions', {})
-                self.write_log(f"  System fractions: {len(system_fractions)} time points")
-                if system_fractions:
-                    data = {
-                        'Time_s': [],
-                        'FCC_A1_%': [],
-                        'BCC_A2_%': [],
-                        'Interface_um': []
-                    }
-                    for t in sorted(system_fractions.keys()):
-                        sf = system_fractions[t]
-                        data['Time_s'].append(t)
-                        data['FCC_A1_%'].append(sf.get('FCC_A1', None))
-                        data['BCC_A2_%'].append(sf.get('BCC_A2', None))
-                        data['Interface_um'].append(sf.get('interface_position', None))
-                    
-                    df_sys = pd.DataFrame(data)
-                    df_sys.to_excel(writer, sheet_name='System_Fractions', index=False)
-                    sheets_saved.append('System_Fractions')
-                    self.write_log(f"    Created System_Fractions sheet: {len(df_sys)} rows")
+                # System fractions (simpler structure)
+                sys_frac = self.result_data.get('system_phase_fractions', {})
+                if sys_frac:
+                    rows = [{'Time_s': t, 
+                             'FCC_A1_%': sf.get('FCC_A1'), 
+                             'BCC_A2_%': sf.get('BCC_A2'),
+                             'Interface_um': sf.get('interface_position')}
+                            for t, sf in sorted(sys_frac.items())]
+                    pd.DataFrame(rows).to_excel(writer, sheet_name='System_Fractions', index=False)
+                    sheets.append('System_Fractions')
                 
-                # If no sheets written, add a placeholder
-                if not sheets_saved:
-                    self.write_log("  WARNING: No sheets created, adding placeholder")
-                    df_empty = pd.DataFrame({'Message': ['No data available to export']})
-                    df_empty.to_excel(writer, sheet_name='Info', index=False)
-                    sheets_saved.append('Info (no data)')
+                if not sheets:
+                    pd.DataFrame({'Message': ['No data']}).to_excel(writer, sheet_name='Info', index=False)
             
             self.write_log(f"Export complete: {filename}")
-            messagebox.showinfo("Export Complete", 
-                f"Saved to:\n{filename}\n\nSheets:\n- " + "\n- ".join(sheets_saved))
+            messagebox.showinfo("Export Complete", f"Saved: {filename}\nSheets: {', '.join(sheets)}")
             
         except Exception as e:
-            self.write_log(f"Export error: {e}\n{traceback.format_exc()}")
-            messagebox.showerror("Export Error", f"Failed to export: {e}")
+            self.write_log(f"Export error: {e}")
+            messagebox.showerror("Export Error", str(e))
 
 
 def main():
