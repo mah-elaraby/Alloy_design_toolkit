@@ -239,6 +239,13 @@ The calculations, especially the phase calculations over a large composition spa
 
 Errors that occur during the workflow are displayed in the log window in the "Workflow" tab. If a critical error occurs, a message box will be displayed.
 
+## Citation
+
+For citing **Alloy Design Toolkit**, please use:
+
+- **M. Elaraby et al.**, "Accelerated alloy design through a fully integrated High-Throughput computational Framework: Case study on medium manganese steels", Materials & Design, 2026,
+  116208, https://doi.org/10.1016/j.matdes.2026.116208 ![IF: 7.9](https://img.shields.io/badge/IF-7.9-blue) ![Q1](https://img.shields.io/badge/Q1-red).
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
