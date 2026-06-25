@@ -244,7 +244,9 @@ Errors that occur during the workflow are displayed in the log window in the "Wo
 For citing **Alloy Design Toolkit**, please use:
 
 - **M. Elaraby et al.**, "Accelerated alloy design through a fully integrated High-Throughput computational Framework: Case study on medium manganese steels", Materials & Design, 2026,
-  116208, https://doi.org/10.1016/j.matdes.2026.116208 ![IF: 7.9](https://img.shields.io/badge/IF-7.9-blue) ![Q1](https://img.shields.io/badge/Q1-red).
+  116208, https://doi.org/10.1016/j.matdes.2026.116208
+        
+         IF: 7.9](https://img.shields.io/badge/IF-8.2-blue) ![Q1](https://img.shields.io/badge/Q1-red).
 
 ## License
 
